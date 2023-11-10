@@ -2,6 +2,7 @@ from flask import Flask, request, render_template, redirect, url_for
 import pymysql
 import os
 import logging
+import platform
 from azure.keyvault.secrets import SecretClient
 from azure.identity import DefaultAzureCredential
 
@@ -54,6 +55,7 @@ app.config["SECRET_KEY"] = _secret.value
 
 @app.route("/", methods=["GET"])
 def index():
+    logging.info("Index page")
     return render_template("index.html")
 
 
@@ -72,6 +74,7 @@ def movies():
     query = "SELECT * FROM movies"
     cur.execute(query)
     movies = cur.fetchall()
+    logging.info("All movies page")
     return render_template("movies.html", movies=movies)
 
 
@@ -86,8 +89,10 @@ def search():
         cur.execute(query, param_dict)
         if cur.rowcount > 0:
             results = cur.fetchall()
+            logging.info("Search results page")
             return render_template("movies.html", movies=results)
         else:
+            logging.info("No matches found for search")
             return render_template(
                 "movies.html", no_match="No matches found for your search."
             )
@@ -97,55 +102,59 @@ def search():
 
 @app.route("/diagnostics", methods=["GET"])
 def diagnostics():
-    def diagnostics():
-        # borrowed from https://github.com/balarsen/FlaskStatus
-        platform_stats = {
-            "architecture": platform.architecture(),
-            "machine": platform.machine(),
-            "node": platform.node(),
-            "platform": platform.platform(),
-            "processor": platform.processor(),
-            "python_branch": platform.python_branch(),
-            "python_build": platform.python_build(),
-            "python_compiler": platform.python_compiler(),
-            "python_implementation": platform.python_implementation(),
-            "python_revision": platform.python_revision(),
-            "python_version": platform.python_version(),
-            "python_version_tuple": platform.python_version_tuple(),
-            "release": platform.release(),
-            "system": platform.system(),
-            "uname": platform.uname(),
-            "version": platform.version(),
-            "java_ver": platform.java_ver(),
-            "win32_ver": platform.win32_ver(),
-            "mac_ver": platform.mac_ver(),
-            "libc_ver": platform.libc_ver(),
-            "load_average": os.getloadavg(),
-        }
-        log_stats = []
-        log_files = [
-            "/tmp/gunicorn-pwnedapi.log",
-            "/tmp/gunicorn-pwnedhub.log",
-            "/tmp/gunicorn-pwnedspa.log",
-            "/tmp/gunicorn-pwnedsso.log",
-            "/var/log/nginx/access.log",
-        ]
-        for log_file in log_files:
-            if os.path.exists(log_file):
-                data = {
-                    "name": log_file,
-                    "size": os.path.getsize(log_file),
-                    "mtime": os.path.getmtime(log_file),
-                    "ctime": os.path.getctime(log_file),
-                    "tail": [],
-                }
-                with open(log_file) as fp:
-                    data["tail"] = "".join(fp.readlines()[-20:])
-                log_stats.append(data)
+    # borrowed from https://github.com/balarsen/FlaskStatus
+    # borrowed from https://github.com/practisec/pwnedhub/blob/master/pwnedhub/views/core.py
 
-        return render_template(
-            "diagnostics.html", platform_stats=platform_stats, log_stats=log_stats
-        )
+    platform_stats = {
+        "architecture": platform.architecture(),
+        "machine": platform.machine(),
+        "node": platform.node(),
+        "platform": platform.platform(),
+        "processor": platform.processor(),
+        "python_branch": platform.python_branch(),
+        "python_build": platform.python_build(),
+        "python_compiler": platform.python_compiler(),
+        "python_implementation": platform.python_implementation(),
+        "python_revision": platform.python_revision(),
+        "python_version": platform.python_version(),
+        "python_version_tuple": platform.python_version_tuple(),
+        "release": platform.release(),
+        "system": platform.system(),
+        "uname": platform.uname(),
+        "version": platform.version(),
+        "java_ver": platform.java_ver(),
+        "win32_ver": platform.win32_ver(),
+        "mac_ver": platform.mac_ver(),
+        "libc_ver": platform.libc_ver(),
+        "load_average": os.getloadavg(),
+    }
+
+        # log_stats = []
+        # log_files = [
+        #     "/tmp/gunicorn-pwnedapi.log",
+        #     "/tmp/gunicorn-pwnedhub.log",
+        #     "/tmp/gunicorn-pwnedspa.log",
+        #     "/tmp/gunicorn-pwnedsso.log",
+        #     "/var/log/nginx/access.log",
+        # ]
+        # for log_file in log_files:
+        #     if os.path.exists(log_file):
+        #         data = {
+        #             "name": log_file,
+        #             "size": os.path.getsize(log_file),
+        #             "mtime": os.path.getmtime(log_file),
+        #             "ctime": os.path.getctime(log_file),
+        #             "tail": [],
+        #         }
+        #         with open(log_file) as fp:
+        #             data["tail"] = "".join(fp.readlines()[-20:])
+        #         log_stats.append(data)
+
+        # return render_template(
+        #     "diagnostics.html", platform_stats=platform_stats, log_stats=log_stats
+        # )
+
+        return render_template("diagnostics.html", platform_stats=platform_stats)
 
 
 if __name__ == "__main__":
