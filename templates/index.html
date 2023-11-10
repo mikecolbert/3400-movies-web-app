@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %} My Movie Database {% endblock %}
+
+
+{% block body %} 
+
+<h1>Welcome to my Movie Database</h1>
+
+<hr>
+
+<p><a href="{{ url_for('movies') }}">view all movies</a></p>
+
+<form method="POST">
+    <p><input type="text" name="search_string" autofocus="autofocus" placeholder="Search by movie title or year"> 
+    &emsp;<input type="submit" formaction="{{ url_for('search') }}" value="Search"  />
+    </p>
+</form>
+
+{% endblock %}

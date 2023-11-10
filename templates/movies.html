@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %} All Movies {% endblock %}
+
+
+{% block body %} 
+<p><a href="{{ url_for('index') }}">Home</a></p>
+<h1>All Movies</h1>
+<hr>
+
+{% if no_match %}
+    <p>{{ no_match }}</p>
+{% endif %}
+
+
+{% if movies %}
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Popularity</th>
+                <th>Runtime</th>
+                <th>Release Year</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for movie in movies %}
+            <tr>
+                <td> {{ movie.title }}</td>
+                <td> {{ movie.popularity }}</td>
+                <td> {{ movie.runtime }}</td>
+                <td> {{ movie.releaseYear }}</td>
+                
+                <td><form action="{{ url_for('movie_details', movie_id=movie.movieId) }}" method="POST">
+                    <input type="submit" value="Details"  />
+                </form>    </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+
+{% endblock %}

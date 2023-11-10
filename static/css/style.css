@@ -1,0 +1,30 @@
+
+body {
+    background-color:lightgray;
+}
+
+input:read-only{
+    background-color:#EBEBE4;
+    border:1px solid #ABADB3;
+    padding:2px 1px;
+}
+
+.container {
+    text-align: center;
+    background-color: lightgray; /* creates a colored border around the content div */
+    padding: 10px; /* created a border fully around the content div */ 
+}
+
+.content {
+    display: inline-block;
+    background-color: white;
+    margin: 0 auto; /* used to center the div */
+    text-align: left; /* left justifies the text inside of the div */
+    padding: 20px;
+    border: 1px solid black;
+    width: 90%;
+}
+
+.italic{
+    font-style: italic;
+}

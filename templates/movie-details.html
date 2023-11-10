@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %} {{ movie.title }} Details {% endblock %}
+
+
+{% block body %}
+<p><a href="{{ url_for('index') }}">Home</a></p>
+<h1><span class="italic">{{ movie.title }}</span> Details</h1>
+<hr>
+
+{% if movie %}
+
+<form>
+
+    <p> <label  for="movie_id"> Movie Id: </label>    
+    <input type="text" id="movie_id" name="movie_id" value="{{ movie.movieId }}" readonly ></p>
+
+    <p> <label  for="movie_imdb"> IMDB: </label>    
+        <input type="text" id="movie_imdb" name="movie_imdb" value="{{ movie.IMDB }}" readonly ></p>
+
+    <p> <label  for="popularity"> Popularity: </label>    
+    <input type="text" id="popularity" name="popularity" value="{{ movie.popularity }}" readonly ></p>
+
+    <p> <label  for="avg_rating"> Average Rating: </label>    
+    <input type="text" id="avg_rating" name="avg_rating" value="{{ movie.averagerating }}" readonly ></p>
+
+    <p> <label  for="tot_rating"> Total Rating: </label>    
+    <input type="text" id="tot_rating" name="tot_rating" value="{{ movie.totalrating }}" readonly ></p>
+
+    <p> <label  for="runtime"> Runtime: </label>    
+    <input type="text" id="runtime" name="runtime" value="{{ movie.runtime }}" readonly ></p>
+
+    <p> <label  for="release_date"> Release Date: </label>    
+    <input type="text" id="release_date" name="release_date" value="{{ movie.releasedate }}" readonly ></p>
+        
+    <p> <label  for="budget"> Budget: </label>    
+        <input type="text" id="budget" name="budget" value='{{ "${:,.2f}".format(movie.budget) }}' readonly ></p>
+
+    <p> <label  for="revenue"> Revenue: </label>    
+    <input type="text" id="revenue" name="revenue" value='{{ "${:,.2f}".format(movie.revenue) }}' readonly ></p>
+
+    <p> <label  for="profit"> Profit: </label>    
+    <input type="text" id="profit" name="profit" value='{{ "${:,.2f}".format(movie.profit) }}' readonly ></p>
+            
+    <p> <label  for="language"> Language: </label>    
+    <input type="text" id="language" name="language" value="{{ movie.language }}" readonly ></p>
+
+{% endif %}
+
+{% endblock %}
