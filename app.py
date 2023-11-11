@@ -129,32 +129,33 @@ def diagnostics():
         "load_average": os.getloadavg(),
     }
 
-    # log_stats = []
-    # log_files = [
-    #     "/tmp/gunicorn-pwnedapi.log",
-    #     "/tmp/gunicorn-pwnedhub.log",
-    #     "/tmp/gunicorn-pwnedspa.log",
-    #     "/tmp/gunicorn-pwnedsso.log",
-    #     "/var/log/nginx/access.log",
-    # ]
-    # for log_file in log_files:
-    #     if os.path.exists(log_file):
-    #         data = {
-    #             "name": log_file,
-    #             "size": os.path.getsize(log_file),
-    #             "mtime": os.path.getmtime(log_file),
-    #             "ctime": os.path.getctime(log_file),
-    #             "tail": [],
-    #         }
-    #         with open(log_file) as fp:
-    #             data["tail"] = "".join(fp.readlines()[-20:])
-    #         log_stats.append(data)
+    log_stats = []
+    log_files = [
+        #     "/tmp/gunicorn-pwnedapi.log",
+        #     "/tmp/gunicorn-pwnedhub.log",
+        #     "/tmp/gunicorn-pwnedspa.log",
+        #     "/tmp/gunicorn-pwnedsso.log",
+        #     "/var/log/nginx/access.log",
+        "./log_file.log",
+    ]
+    for log_file in log_files:
+        if os.path.exists(log_file):
+            data = {
+                "name": log_file,
+                "size": os.path.getsize(log_file),
+                "mtime": os.path.getmtime(log_file),
+                "ctime": os.path.getctime(log_file),
+                "tail": [],
+            }
+            with open(log_file) as fp:
+                data["tail"] = "".join(fp.readlines()[-20:])
+            log_stats.append(data)
 
-    # return render_template(
-    #     "diagnostics.html", platform_stats=platform_stats, log_stats=log_stats
-    # )
+    return render_template(
+        "diagnostics.html", platform_stats=platform_stats, log_stats=log_stats
+    )
 
-    return render_template("diagnostics.html", platform_stats=platform_stats)
+    # return render_template("diagnostics.html", platform_stats=platform_stats)
 
 
 if __name__ == "__main__":
