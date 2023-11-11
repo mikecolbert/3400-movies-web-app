@@ -31,13 +31,6 @@ _dbpassword = client.get_secret("HW13-DBPASSWORD")
 _dbname = client.get_secret("HW13-DBNAME")
 _secret = client.get_secret("HW13-SECRET-KEY")
 
-logging.info("_dbhostname: " + _dbhostname.value)
-logging.info("_dbusername: " + _dbusername.value)
-logging.info("_dbpassword: " + _dbpassword.value)
-logging.info("_dbname: " + _dbname.value)
-logging.info("_secret: " + _secret.value)
-
-
 conn = pymysql.connect(
     host=_dbhostname.value,
     user=_dbusername.value,
