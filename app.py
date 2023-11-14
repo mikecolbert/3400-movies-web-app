@@ -20,8 +20,6 @@ logging.info("Loading variables from Azure Key Vault")
 
 AZURE_KEY_VAULT_URL = os.environ["AZURE_KEY_VAULT_URL"]
 
-logging.info(AZURE_KEY_VAULT_URL)
-
 credential = DefaultAzureCredential()
 client = SecretClient(vault_url=AZURE_KEY_VAULT_URL, credential=credential)
 
