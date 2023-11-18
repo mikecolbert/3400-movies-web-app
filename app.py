@@ -3,10 +3,15 @@ import pymysql
 import os
 import logging
 import platform
+from dotenv import load_dotenv
 from azure.keyvault.secrets import SecretClient
 from azure.identity import DefaultAzureCredential
 
 # 11/10/2023 MWC
+
+# load environment variables
+load_dotenv()
+
 
 # create logger
 logging.basicConfig(
@@ -19,6 +24,7 @@ logging.basicConfig(
 logging.info("Loading variables from Azure Key Vault")
 
 AZURE_KEY_VAULT_URL = os.environ["AZURE_KEY_VAULT_URL"]
+print(AZURE_KEY_VAULT_URL)
 
 credential = DefaultAzureCredential()
 client = SecretClient(vault_url=AZURE_KEY_VAULT_URL, credential=credential)
@@ -150,4 +156,4 @@ def diagnostics():
 
 
 if __name__ == "__main__":
-    app.run(debug=False)
+    app.run(host="localhost", port=8000, debug=True)
