@@ -22,7 +22,6 @@ logging.basicConfig(
 )
 
 logging.info("Loading variables from Azure Key Vault")
-
 AZURE_KEY_VAULT_URL = os.environ["AZURE_KEY_VAULT_URL"]
 print(AZURE_KEY_VAULT_URL)
 
@@ -35,14 +34,76 @@ _dbpassword = client.get_secret("HW13-DBPASSWORD")
 _dbname = client.get_secret("HW13-DBNAME")
 _secret = client.get_secret("HW13-SECRET-KEY")
 
-conn = pymysql.connect(
-    host=_dbhostname.value,
-    user=_dbusername.value,
-    password=_dbpassword.value,
-    db=_dbname.value,
-    ssl={"ca": "./DigiCertGlobalRootCA.crt.pem"},
-    cursorclass=pymysql.cursors.DictCursor,
-)
+############## database class ######################
+
+
+class DB:
+    def __init__(self):
+        self.host = _dbhostname.value
+        self.username = _dbusername.value
+        self.password = _dbpassword.value
+        self.dbname = _dbname.value
+        self.ssl = {"ca": "./DigiCertGlobalRootCA.crt.pem"}
+        self.conn = None
+
+    def __connect__(self):
+        """Connect to MySQL database."""
+        try:
+            if self.conn is None:
+                self.conn = pymysql.connect(
+                    host=self.host,
+                    user=self.username,
+                    password=self.password,
+                    db=self.dbname,
+                    ssl=self.ssl,
+                    cursorclass=pymysql.cursors.DictCursor,
+                )
+
+                self.cur = self.conn.cursor()
+        except pymysql.Error as e:
+            logging.error(f"Error connecting to the database: {e}")
+            raise
+        finally:
+            logging.info("Successfully connected to the database")
+
+    def __disconnect__(self):
+        """Disconnect from MySQL database."""
+        if self.conn is not None:
+            self.cur.close()
+            self.conn.close()
+            logging.info("Disconnected from the database")
+
+    def fetch_all(self, query):
+        try:
+            self.__connect__()
+            logging.info(query)
+            self.cur.execute(query)
+            result = self.cur.fetchall()
+            self.__disconnect__()
+            logging.info("Retrieved data for all movies from the database")
+            return result
+        except pymysql.Error as e:
+            logging.error(f"Error retrieving movie data: {e}")
+            raise
+
+    def fetch_one(self, query, movie_id):
+        try:
+            self.__connect__()
+            self.cur.execute(query, (movie_id,))
+            result = self.cur.fetchone()
+            self.__disconnect__()
+            if result:
+                logging.info(f"Retrieved movie with ID {movie_id} from the database")
+            else:
+                logging.warning(f"No movie found with ID {movie_id}")
+            return result
+        except pymysql.Error as e:
+            logging.error(f"Error retrieving movie with ID {movie_id}: {e}")
+            raise
+
+
+####################################################
+
 
 logging.info("Starting Flask app")
 
@@ -50,6 +111,7 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = _secret.value
 
 
+######## Routes ########
 @app.route("/", methods=["GET"])
 def index():
     logging.info("Index page")
@@ -58,19 +120,17 @@ def index():
 
 @app.route("/movie/<movie_id>", methods=["GET", "POST"])
 def movie_details(movie_id):
-    cur = conn.cursor()
+    db = DB()
     query = "SELECT * FROM movies WHERE movieId = %s"
-    cur.execute(query, movie_id)
-    movie = cur.fetchone()
+    movie = db.fetch_one(query, movie_id)
     return render_template("movie-details.html", movie=movie)
 
 
 @app.route("/movies", methods=["GET"])
 def movies():
-    cur = conn.cursor()
+    db = DB()
     query = "SELECT * FROM movies"
-    cur.execute(query)
-    movies = cur.fetchall()
+    movies = db.fetch_all(query)
     logging.info("All movies page")
     return render_template("movies.html", movies=movies)
 
@@ -156,4 +216,10 @@ def diagnostics():
 
 
 if __name__ == "__main__":
-    app.run(host="localhost", port=8000, debug=True)
+    app.run(host="127.0.0.1", port=8000, debug=True)
+
+
+"""TODO:
+movie #6 - Judgement Night  is erroring out because of budget formatting.
+Other movies are working ok.
+"""
