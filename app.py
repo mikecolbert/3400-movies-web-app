@@ -73,14 +73,14 @@ class DB:
             self.conn.close()
             logging.info("Disconnected from the database")
 
-    def fetch_all(self, query):
+    def fetch_all(self, query, param_dict=None):
         try:
             self.__connect__()
             logging.info(query)
-            self.cur.execute(query)
+            self.cur.execute(query, param_dict)
             result = self.cur.fetchall()
             self.__disconnect__()
-            logging.info("Retrieved data for all movies from the database")
+            logging.info("Retrieved data for movies from the database")
             return result
         except pymysql.Error as e:
             logging.error(f"Error retrieving movie data: {e}")
@@ -140,16 +140,15 @@ def search():
     if request.method == "POST":
         form = request.form
         search_value = form["search_string"]
-        cur = conn.cursor()
+        db = DB()
         query = "SELECT * FROM movies WHERE title LIKE %(search)s OR releaseYear LIKE %(search)s"
         param_dict = {"search": "%" + search_value + "%"}
-        cur.execute(query, param_dict)
-        if cur.rowcount > 0:
-            results = cur.fetchall()
-            logging.info("Search results page")
-            return render_template("movies.html", movies=results)
+        search_results = db.fetch_all(query, param_dict)
+        if search_results:
+            logging.info("Search results found.")
+            return render_template("movies.html", movies=search_results)
         else:
-            logging.info("No matches found for search")
+            logging.info("No matches found for search.")
             return render_template(
                 "movies.html", no_match="No matches found for your search."
             )
@@ -217,9 +216,3 @@ def diagnostics():
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=8000, debug=True)
-
-
-"""TODO:
-movie #6 - Judgement Night  is erroring out because of budget formatting.
-Other movies are working ok.
-"""

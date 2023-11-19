@@ -8,7 +8,7 @@ block body %}
 <p><a href="{{ url_for('movies') }}">view all movies</a></p>
 
 <form method="POST">
-  <p>
+  <!-- <p>
     <input
       type="text"
       name="search_string"
@@ -20,7 +20,24 @@ block body %}
       formaction="{{ url_for('search') }}"
       value="Search"
     />
-  </p>
+  </p> -->
+
+  <div class="input-group mb-3">
+    <input
+      type="text"
+      class="form-control"
+      id="search_string"
+      name="search_string"
+      placeholder="Search by movie title or year."
+    />
+    <button
+      type="submit"
+      class="btn btn-primary"
+      formaction="{{ url_for('search') }}"
+    >
+      Search
+    </button>
+  </div>
 </form>
 
 <hr />

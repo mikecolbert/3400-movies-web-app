@@ -10,6 +10,7 @@ body %}
 <table class="table table-striped table-hover">
   <thead>
     <tr>
+      <th>&nbsp;</th>
       <th>Title</th>
       <th>Popularity</th>
       <th>Runtime</th>
@@ -20,7 +21,8 @@ body %}
 
   <tbody>
     {% for movie in movies %}
-    <tr>
+    <tr class="align-middle fs-5">
+      <td>{{ loop.index }}</td>
       <td>{{ movie.title }}</td>
       <td>{{ movie.popularity }}</td>
       <td>{{ movie.runtime }}</td>
