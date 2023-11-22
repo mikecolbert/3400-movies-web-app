@@ -193,28 +193,31 @@ def movies(page=1, per_page=10, offset=0):
 ## TODO: if you click on page 2 or beyond, it is not a POST request is redirected to index
 
 
-@app.route("/search", methods=["GET", "POST"])
+@app.route("/search", methods=["GET"])
 def search(page=1, per_page=10, offset=0):
-    search_value = ""
-    logging.info(search_value)
-    if request.method == "POST":
-        form = request.form
-        search_value = form["search_string"]
+    search_string = request.args.get(
+        "search_string", ""
+    )  # Retrieve search_value from query parameters
+    logging.info(f"Search string: {search_string}")
+
+    if search_string:
         db = DB()
         page, per_page, offset = get_page_args(
-            page_parameter="page", per_page_parameter="per_page"
+            page_parameter="page",
+            per_page_parameter="per_page",
+            offset_parameter="offset",
         )
-        logging.info(f"Search value: {search_value}")
+        logging.info(f"Search string: {search_string}")
         query = "SELECT * FROM movies WHERE title LIKE %(search)s OR releaseYear LIKE %(search)s LIMIT %(limit)s OFFSET %(offset)s"
         param_dict = {
-            "search": "%" + search_value + "%",
+            "search": "%" + search_string + "%",
             "limit": per_page,
             "offset": offset,
         }
         total_rows, search_results = db.fetch_search(query, param_dict)
         if search_results:
             logging.info("Search results found.")
-            logging.info(f"Total movies: {total_rows}")
+            logging.info(f"Total search results: {total_rows}")
             total_pages = math.ceil(total_rows / per_page)
             logging.info(f"Total pages: {total_pages}")
 
@@ -223,6 +226,7 @@ def search(page=1, per_page=10, offset=0):
                 per_page=per_page,
                 total=total_rows,
                 css_framework="bootstrap5",
+                search_string=search_string,
             )
             return render_template(
                 "movies.html",
@@ -237,6 +241,7 @@ def search(page=1, per_page=10, offset=0):
                 "movies.html", no_match="No matches found for your search."
             )
     else:
+        logging.info("No search string provided.")
         return redirect(url_for("index"))
 
 
