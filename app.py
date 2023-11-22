@@ -1,5 +1,7 @@
 from flask import Flask, request, render_template, redirect, url_for
+from flask_paginate import Pagination, get_page_args
 import pymysql
+import math
 import os
 import logging
 import platform
@@ -77,11 +79,39 @@ class DB:
         try:
             self.__connect__()
             logging.info(query)
+            # get the total number of movies in the database
+            self.cur.execute("SELECT * FROM movies")
+            count = self.cur.rowcount
+
+            # get the movies for the current page
+            self.cur.execute(query, param_dict)
+            result = self.cur.fetchall()
+
+            self.__disconnect__()
+
+            logging.info("Retrieved data for movies from the database")
+            return count, result
+        except pymysql.Error as e:
+            logging.error(f"Error retrieving movie data: {e}")
+            raise
+
+    def fetch_search(self, query, param_dict=None):
+        try:
+            self.__connect__()
+            logging.info(query)
+            # get the total number of movies in the database
+            self.cur.execute(
+                "SELECT * FROM movies WHERE title LIKE %(search)s OR releaseYear LIKE %(search)s",
+                param_dict,
+            )
+            count = self.cur.rowcount
+
+            # get the movies for the current page
             self.cur.execute(query, param_dict)
             result = self.cur.fetchall()
             self.__disconnect__()
             logging.info("Retrieved data for movies from the database")
-            return result
+            return count, result
         except pymysql.Error as e:
             logging.error(f"Error retrieving movie data: {e}")
             raise
@@ -127,32 +157,91 @@ def movie_details(movie_id):
 
 
 @app.route("/movies", methods=["GET"])
-def movies():
+def movies(page=1, per_page=10, offset=0):
     db = DB()
-    query = "SELECT * FROM movies"
-    movies = db.fetch_all(query)
+    page, per_page, offset = get_page_args(
+        page_parameter="page", per_page_parameter="per_page"
+    )
+
+    query = "SELECT * FROM movies LIMIT %(limit)s OFFSET %(offset)s"
+    param_dict = {"limit": per_page, "offset": offset}
+
+    total_rows, paginated_movies = db.fetch_all(query, param_dict)
+
+    logging.info(f"Total movies: {total_rows}")
+    total_pages = math.ceil(total_rows / per_page)
+    logging.info(f"Total pages: {total_pages}")
+
+    pagination = Pagination(
+        page=page,
+        per_page=per_page,
+        total=total_rows,
+        css_framework="bootstrap5",
+    )
+
     logging.info("All movies page")
-    return render_template("movies.html", movies=movies)
+    return render_template(
+        "movies.html",
+        movies=paginated_movies,
+        page=page,
+        per_page=per_page,
+        pagination=pagination,
+    )
 
 
-@app.route("/search", methods=["GET", "POST"])
-def search():
-    if request.method == "POST":
-        form = request.form
-        search_value = form["search_string"]
+## TODO: search value is not being utilized on page 2 and beyond because those are GET requests
+## TODO: if you click on page 2 or beyond, it is not a POST request is redirected to index
+
+
+@app.route("/search", methods=["GET"])
+def search(page=1, per_page=10, offset=0):
+    search_string = request.args.get(
+        "search_string", ""
+    )  # Retrieve search_value from query parameters
+    logging.info(f"Search string: {search_string}")
+
+    if search_string:
         db = DB()
-        query = "SELECT * FROM movies WHERE title LIKE %(search)s OR releaseYear LIKE %(search)s"
-        param_dict = {"search": "%" + search_value + "%"}
-        search_results = db.fetch_all(query, param_dict)
+        page, per_page, offset = get_page_args(
+            page_parameter="page",
+            per_page_parameter="per_page",
+            offset_parameter="offset",
+        )
+        logging.info(f"Search string: {search_string}")
+        query = "SELECT * FROM movies WHERE title LIKE %(search)s OR releaseYear LIKE %(search)s LIMIT %(limit)s OFFSET %(offset)s"
+        param_dict = {
+            "search": "%" + search_string + "%",
+            "limit": per_page,
+            "offset": offset,
+        }
+        total_rows, search_results = db.fetch_search(query, param_dict)
         if search_results:
             logging.info("Search results found.")
-            return render_template("movies.html", movies=search_results)
+            logging.info(f"Total search results: {total_rows}")
+            total_pages = math.ceil(total_rows / per_page)
+            logging.info(f"Total pages: {total_pages}")
+
+            pagination = Pagination(
+                page=page,
+                per_page=per_page,
+                total=total_rows,
+                css_framework="bootstrap5",
+                search_string=search_string,
+            )
+            return render_template(
+                "movies.html",
+                movies=search_results,
+                page=page,
+                per_page=per_page,
+                pagination=pagination,
+            )
         else:
             logging.info("No matches found for search.")
             return render_template(
                 "movies.html", no_match="No matches found for your search."
             )
     else:
+        logging.info("No search string provided.")
         return redirect(url_for("index"))
 
 

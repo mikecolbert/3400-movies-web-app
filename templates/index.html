@@ -7,7 +7,7 @@ block body %}
 
 <p><a href="{{ url_for('movies') }}">view all movies</a></p>
 
-<form method="POST">
+<form method="GET" action="{{ url_for('search') }}">
   <div class="input-group mb-3">
     <input
       type="text"
@@ -16,13 +16,7 @@ block body %}
       name="search_string"
       placeholder="Search by movie title or year."
     />
-    <button
-      type="submit"
-      class="btn btn-primary"
-      formaction="{{ url_for('search') }}"
-    >
-      Search
-    </button>
+    <button type="submit" class="btn btn-primary">Search</button>
   </div>
 </form>
 
