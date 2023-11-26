@@ -9,7 +9,9 @@ from dotenv import load_dotenv
 from azure.keyvault.secrets import SecretClient
 from azure.identity import DefaultAzureCredential
 
-# 11/10/2023 MWC
+# 11/23/2023 MWC
+## TODO: format pagination on movies.html
+## TODO: add a footer
 
 # load environment variables
 load_dotenv()
@@ -187,10 +189,6 @@ def movies(page=1, per_page=10, offset=0):
         per_page=per_page,
         pagination=pagination,
     )
-
-
-## TODO: search value is not being utilized on page 2 and beyond because those are GET requests
-## TODO: if you click on page 2 or beyond, it is not a POST request is redirected to index
 
 
 @app.route("/search", methods=["GET"])
