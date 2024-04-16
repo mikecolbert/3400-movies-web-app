@@ -1,6 +1,6 @@
-# HW12-BAIS3400
+# 3400/6400 - Movies web application
 
-BAIS:3400/6400 - homework using Azure App Services, MySQL, Active Directory, and Key Vault to create a database driven web application.
+BAIS:3400/6400 - homework using Azure App Services, Azure Database for MySQL, Azure Active Directory, and Azure Key Vault to create a database driven web application.
 
 ---
 
@@ -42,4 +42,4 @@ mydb.close()
 11/10/2023 - Added /diagnostics  
 11/10/2023 - Added logging  
 11/10/2023 - Added Bootstrap 5.2 for styling  
-11/10/2023 - Web app is loaded and working  
+11/10/2023 - Web app is loaded and working
