@@ -182,13 +182,7 @@ def movies(page=1, per_page=10, offset=0):
     )
 
     logging.info("All movies page")
-    return render_template(
-        "movies.html",
-        movies=paginated_movies,
-        page=page,
-        per_page=per_page,
-        pagination=pagination,
-    )
+    return render_template("movies.html", movies=movies)
 
 
 @app.route("/search", methods=["GET"])
