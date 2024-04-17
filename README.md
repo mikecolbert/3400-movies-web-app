@@ -44,7 +44,7 @@ mydb.close()
 11/10/2023 - Added Bootstrap 5.2 for styling including navbar  
 11/10/2023 - Web app is loaded and working  
 11/10/2023 - Created database class  
-04/17/2024 - "All movies" results sorted ascending by title
-04/17/2024 - Added total movie results count to page
-04/17/2024 - Added page headers for "All movies" and search results
-04/17/2024 - Updated to Flask 3
+04/17/2024 - "All movies" results sorted ascending by title  
+04/17/2024 - Added total movie results count to page  
+04/17/2024 - Added page headers for "All movies" and search results  
+04/17/2024 - Updated to Flask 3  
