@@ -1,7 +1,6 @@
 {% extends 'base.html' %} {% block title %} All Movies {% endblock %} {% block
 body %}
-<p><a href="{{ url_for('index') }}">Home</a></p>
-<h1>All Movies</h1>
+
 <hr />
 
 {% if no_match %}
@@ -10,6 +9,7 @@ body %}
 <table class="table table-striped table-hover">
   <thead>
     <tr>
+      <th>&nbsp;</th>
       <th>Title</th>
       <th>Popularity</th>
       <th>Runtime</th>
@@ -20,7 +20,8 @@ body %}
 
   <tbody>
     {% for movie in movies %}
-    <tr>
+    <tr class="align-middle fs-5">
+      <td>{{ loop.index }}</td>
       <td>{{ movie.title }}</td>
       <td>{{ movie.popularity }}</td>
       <td>{{ movie.runtime }}</td>
@@ -39,4 +40,4 @@ body %}
     {% endfor %}
   </tbody>
 </table>
-{% endif %} {% endblock %}
+{{ pagination.links}} {% endif %} {% endblock %}
