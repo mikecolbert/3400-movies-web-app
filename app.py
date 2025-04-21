@@ -1,21 +1,15 @@
-from flask import Flask, request, render_template, redirect, url_for
-from flask_paginate import Pagination, get_page_args
-import pymysql
 import math
 import os
 import logging
 import platform
+from flask import Flask, request, render_template, redirect, url_for
+from flask_paginate import Pagination, get_page_args
 from dotenv import load_dotenv
-from azure.keyvault.secrets import SecretClient
-from azure.identity import DefaultAzureCredential
+import pymysql
 
 # 11/23/2023 MWC
 ## TODO: format pagination on movies.html
 ## TODO: add a footer
-
-# load environment variables
-load_dotenv()
-
 
 # create logger
 logging.basicConfig(
@@ -25,28 +19,27 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
 
-logging.info("Loading variables from Azure Key Vault")
-AZURE_KEY_VAULT_URL = os.environ["AZURE_KEY_VAULT_URL"]
-print(AZURE_KEY_VAULT_URL)
+############## load environment variables ######################
+logging.info("Loading variables from environment")
 
-credential = DefaultAzureCredential()
-client = SecretClient(vault_url=AZURE_KEY_VAULT_URL, credential=credential)
+load_dotenv()
 
-_dbhostname = client.get_secret("HW13-DBHOSTNAME")
-_dbusername = client.get_secret("HW13-DBUSERNAME")
-_dbpassword = client.get_secret("HW13-DBPASSWORD")
-_dbname = client.get_secret("HW13-DBNAME")
-_secret = client.get_secret("HW13-SECRET-KEY")
+_dbhostname = os.getenv("HW13_DBHOSTNAME")
+_dbusername = os.getenv("HW13_DBUSERNAME")
+_dbpassword = os.getenv("HW13_DBPASSWORD")
+_dbname = os.getenv("HW13_DBNAME")
+_secret = os.getenv("HW13_SECRET_KEY")
+
 
 ############## database class ######################
 
 
 class DB:
     def __init__(self):
-        self.host = _dbhostname.value
-        self.username = _dbusername.value
-        self.password = _dbpassword.value
-        self.dbname = _dbname.value
+        self.host = _dbhostname
+        self.username = _dbusername
+        self.password = _dbpassword
+        self.dbname = _dbname
         self.ssl = {"ca": "./DigiCertGlobalRootCA.crt.pem"}
         self.conn = None
 
@@ -140,7 +133,7 @@ class DB:
 logging.info("Starting Flask app")
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = _secret.value
+app.config["SECRET_KEY"] = _secret
 
 
 ######## Routes ########
@@ -303,3 +296,6 @@ def diagnostics():
     )
 
     # return render_template("diagnostics.html", platform_stats=platform_stats)
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5003, debug=False)
